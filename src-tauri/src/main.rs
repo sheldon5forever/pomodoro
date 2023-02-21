@@ -5,6 +5,7 @@
 
 use tauri::Manager;
 use tauri::{CustomMenuItem, Menu, MenuItem, Submenu, SystemTray, SystemTrayEvent, SystemTrayMenu};
+use tauri_plugin_log::LogTarget;
 
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
 #[tauri::command]
@@ -20,10 +21,17 @@ fn main() {
         .add_item(CustomMenuItem::new("hide", "隐藏"))
         .add_submenu(submenu);
 
-    let system_tray_menu_item_quit: CustomMenuItem = CustomMenuItem::new("quit".to_string(), "退出");
-    let system_tray_menu: SystemTrayMenu = SystemTrayMenu::new().add_item(system_tray_menu_item_quit);
+    let system_tray_menu_item_quit: CustomMenuItem =
+        CustomMenuItem::new("quit".to_string(), "退出");
+    let system_tray_menu: SystemTrayMenu =
+        SystemTrayMenu::new().add_item(system_tray_menu_item_quit);
 
     tauri::Builder::default()
+        .plugin(
+            tauri_plugin_log::Builder::default()
+                .targets([LogTarget::LogDir, LogTarget::Stdout, LogTarget::Webview])
+                .build(),
+        )
         .menu(menu)
         .on_menu_event(|event| match event.menu_item_id() {
             "quit" => std::process::exit(0),

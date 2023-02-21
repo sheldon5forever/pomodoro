@@ -14,6 +14,7 @@
     "@tauri-apps/api": "^1.2.0",
     "ant-design-vue": "^3.2.15",
     "pinia": "^2.0.30",
+    "tauri-plugin-log-api": "git+https://github.com/tauri-apps/tauri-plugin-log.git",
     "vue": "^3.2.45"
   },
   "devDependencies": {

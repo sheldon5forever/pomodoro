@@ -4,6 +4,7 @@ import {
   isPermissionGranted,
   requestPermission,
 } from '@tauri-apps/api/notification';
+import { trace } from "tauri-plugin-log-api";
 
 export interface AppPermission {
   notification: boolean;
@@ -15,11 +16,11 @@ export default defineStore('app-permissions', () => {
   });
 
   isPermissionGranted().then((isNotificationPermissionGranted) => {
-    console.log('isNotificationPermissionGranted', isNotificationPermissionGranted)
+    trace(`isNotificationPermissionGranted: ${isNotificationPermissionGranted}`, )
     appPermission.notification = isNotificationPermissionGranted;
     if (!appPermission.notification) {
       requestPermission().then((permission) => {
-        console.log('requestPermission', permission)
+        trace(`requestPermission: ${permission}`)
         appPermission.notification = permission === 'granted';
       });
     }
