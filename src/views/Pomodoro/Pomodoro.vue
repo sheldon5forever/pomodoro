@@ -17,14 +17,14 @@
           <div ref="secondRef" class="second"></div>
         </div>
       </div>
+    </div>
+    <div class="pomodoro-footer">
       <div class="pomodoro-menubar">
-        <play-circle-filled v-if="runningState.clockState === ClockState.STOPPED" class="operation-buttons primary" @click="handleRunPomodoroClock"/>
+        <play-circle-filled v-if="runningState.clockState === ClockState.STOPPED" class="operation-buttons primary" @click="handleRunPomodoroClock" />
         <pause-circle-filled v-if="runningState.clockState === ClockState.RUNNING" class="operation-buttons default" @click="handlePausePomodoroClock" />
         <play-circle-filled v-if="runningState.clockState === ClockState.PAUSED" class="operation-buttons primary" @click="handleRestorePomodoroClock" />
         <span class="anticon operation-buttons primary"><StopSVG v-if="runningState.clockState !== ClockState.STOPPED" @click="handleStopPomodoroClock" /></span>
       </div>
-    </div>
-    <div class="pomodoro-footer">
     </div>
   </div>
 </template>
@@ -235,16 +235,17 @@ $bg: #f8c985;
   height: 100%;
 
   .pomodoro-header {
-    height: 32px;
+    height: 48px;
     position: relative;
   }
 
   .pomodoro-body {
     flex: 1;
+    max-height: 300px;
   }
 
   .pomodoro-footer {
-    height: 32px;
+    height: 48px;
   }
 
   .pomodoro-setting-icon {
@@ -252,7 +253,7 @@ $bg: #f8c985;
     cursor: pointer;
     position: absolute;
     right: 10px;
-    top: 4px;
+    top: 12px;
     color: $orange;
   }
 
@@ -260,11 +261,12 @@ $bg: #f8c985;
     display: flex;
     justify-content: center;
     align-items: center;
+    height: 100%;
 
     .clock {
       background: $orange;
-      width: 50vmin;
-      height: 50vmin;
+      width: 60vmin;
+      height: 60vmin;
       border-radius: 50%;
       position: relative;
 
