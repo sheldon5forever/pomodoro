@@ -5,7 +5,7 @@
       <a-drawer
         title="番茄钟配置"
         placement="top"
-        height="200"
+        height="256"
         headerStyle="background-color: #fae9be; border-bottom-color: #F68657;"
         :drawerStyle="drawerStyle"
         :closable="false"
@@ -41,9 +41,11 @@
 import { onMounted, reactive, Ref, ref } from 'vue';
 import Configuration from './components/Configuration.vue';
 import { SettingFilled, PlayCircleFilled, PauseCircleFilled } from '@ant-design/icons-vue';
-import useConfigurationStore, { HOUR_UNIT, MINUTE_UNIT, TimeConfiguration } from './store/config';
+import useConfigurationStore, { HOUR_UNIT, MINUTE_UNIT, PomodoroConfiguration, TimeConfiguration } from './store/config';
 import { isPermissionGranted, requestPermission, sendNotification } from '@tauri-apps/api/notification';
+
 import StopSVG from '@/assets/stop-recording-fill.svg';
+import NotificationIcon from '@/assets/alarm-clock-alarm-clock-that-sounds-loudly-morning-wake-up-from-bed_68708-935.png';
 
 let permissionGranted: boolean;
 
@@ -73,7 +75,7 @@ interface PomodoroRunningState {
 }
 
 const configDrawerVisible: Ref<boolean> = ref<boolean>(false);
-const { pomodoroConfig } = useConfigurationStore();
+const { getConfig } = useConfigurationStore();
 let period: TimeConfiguration
 const drawerStyle = {
   backgroundColor: '#fae9be'
@@ -87,8 +89,12 @@ const handleOpenConfigDrawer = () => {
   configDrawerVisible.value = true
 }
 
+let pomodoroConfig: PomodoroConfiguration;
 onMounted(() => {
-  setTime(pomodoroConfig.pomodoroPeriord);
+  getConfig().then((config: PomodoroConfiguration) => {
+    pomodoroConfig = config;
+    setTime(pomodoroConfig.pomodoroPeriord);
+  })
 })
 
 const hourRef = ref<HTMLElement>()
@@ -143,7 +149,11 @@ const countDown = (period: TimeConfiguration) => {
       if (period.hours === 0) {
         // 倒计时结束
         if (permissionGranted) {
-          sendNotification('计时结束');
+          sendNotification({
+            icon: NotificationIcon,
+            body: runningState.periodType === PeriodType.Pomodoro ? '番茄钟时间结束，开始休息' : '休息结束',
+            title: '时间到'
+          });
         }
 
         nextPeriod();

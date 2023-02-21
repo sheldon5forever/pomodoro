@@ -7,8 +7,8 @@
     "withGlobalTauri": false
   },
   "package": {
-    "productName": "pomodoro-wxt",
-    "version": "0.1.0"
+    "productName": "番茄时钟",
+    "version": "0.2.0"
   },
   "tauri": {
     "allowlist": {
@@ -19,6 +19,12 @@
       "shell": {
         "all": false,
         "open": true
+      },
+      "fs": {
+        "scope": ["$APPDATA/*"],
+        "writeFile": true,
+        "readFile": true,
+        "exists": true
       }
     },
     "bundle": {
@@ -65,9 +71,13 @@
         "fullscreen": false,
         "height": 500,
         "resizable": false,
-        "title": "pomodoro-wxt",
+        "title": "番茄时钟",
         "width": 400
       }
-    ]
+    ],
+    "systemTray": {
+      "iconPath": "icons/icon.png",
+      "iconAsTemplate": false
+    }
   }
 }
