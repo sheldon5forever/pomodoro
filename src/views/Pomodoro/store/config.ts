@@ -1,11 +1,10 @@
 import { defineStore } from 'pinia';
-import { UnwrapRef, reactive, computed, ComputedRef, UnwrapNestedRefs, unref } from 'vue';
+import { UnwrapRef, reactive, UnwrapNestedRefs } from 'vue';
 
 export interface TimeConfiguration {
   hours: number
   minutes: number
   seconds: number
-  totalSeconds: number
 }
 
 export interface PomodoroConfiguration {
@@ -21,14 +20,12 @@ export default defineStore('pomodoro-config', () => {
     pomodoroPeriord: {
       hours: 0,
       minutes: 25,
-      seconds: 0,
-      totalSeconds: computed(() => pomodoroConfig.pomodoroPeriord.hours + HOUR_UNIT + pomodoroConfig.pomodoroPeriord.minutes * MINUTE_UNIT + pomodoroConfig.pomodoroPeriord.seconds)
+      seconds: 0
     },
     restPeriord: {
       hours: 0,
       minutes: 5,
-      seconds: 0,
-      totalSeconds: computed(() => pomodoroConfig.restPeriord.hours + HOUR_UNIT + pomodoroConfig.restPeriord.minutes * MINUTE_UNIT + pomodoroConfig.restPeriord.seconds)
+      seconds: 0
     }
   });
 

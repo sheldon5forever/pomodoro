@@ -18,8 +18,10 @@
         </div>
       </div>
       <div class="pomodoro-menubar">
-        <a-button v-if="!runningState.isClockRunning" type="primary" @click="handleRunPomodoroClock">开始</a-button>
-        <a-button v-else type="danger" @click="handleStopPomodoroClock">结束</a-button>
+        <play-circle-filled v-if="runningState.clockState === ClockState.STOPPED" class="operation-buttons primary" @click="handleRunPomodoroClock"/>
+        <pause-circle-filled v-if="runningState.clockState === ClockState.RUNNING" class="operation-buttons default" @click="handlePausePomodoroClock" />
+        <play-circle-filled v-if="runningState.clockState === ClockState.PAUSED" class="operation-buttons primary" @click="handleRestorePomodoroClock" />
+        <span class="anticon operation-buttons primary"><StopSVG v-if="runningState.clockState !== ClockState.STOPPED" @click="handleStopPomodoroClock" /></span>
       </div>
     </div>
     <div class="pomodoro-footer">
@@ -28,11 +30,13 @@
 </template>
 
 <script lang="ts" setup>
-import { onMounted, reactive, Ref, ref, watch } from 'vue';
+import { onMounted, reactive, Ref, ref } from 'vue';
 import Configuration from './components/Configuration.vue';
-import { SettingFilled } from '@ant-design/icons-vue';
+import { SettingFilled, PlayCircleFilled, PauseCircleFilled } from '@ant-design/icons-vue';
 import useConfigurationStore, { HOUR_UNIT, MINUTE_UNIT, TimeConfiguration } from './store/config';
 import { isPermissionGranted, requestPermission, sendNotification } from '@tauri-apps/api/notification';
+import StopSVG from '@/assets/stop-recording-fill.svg';
+
 let permissionGranted: boolean;
 
 isPermissionGranted().then(() => {
@@ -48,14 +52,21 @@ enum PeriodType {
   Rest,
 }
 
+enum ClockState {
+  STOPPED,
+  RUNNING,
+  PAUSED
+}
+
 interface PomodoroRunningState {
   periodType: PeriodType;
-  isClockRunning: boolean;
+  clockState: ClockState;
   timer: NodeJS.Timer
 }
 
 const configDrawerVisible: Ref<boolean> = ref<boolean>(false);
 const { pomodoroConfig } = useConfigurationStore();
+let period: TimeConfiguration
 
 const handleCloseConfigDrawer = () => {
   configDrawerVisible.value = false
@@ -65,24 +76,13 @@ const handleOpenConfigDrawer = () => {
   configDrawerVisible.value = true
 }
 
-const hourRef = ref<HTMLElement>()
-const minuteRef = ref<HTMLElement>()
-const secondRef = ref<HTMLElement>()
-
 onMounted(() => {
   setTime(pomodoroConfig.pomodoroPeriord);
 })
 
-/**
- * 修改配置后：
- * 1、停止番茄钟
- * 2、将番茄钟更新至新配置
- */
-watch(pomodoroConfig, () => {
-  handleStopPomodoroClock();
-  setTime(pomodoroConfig.pomodoroPeriord);
-})
-
+const hourRef = ref<HTMLElement>()
+const minuteRef = ref<HTMLElement>()
+const secondRef = ref<HTMLElement>()
 const setTime = (timeConfig: TimeConfiguration) => {
   const { hours = 0, minutes = 0, seconds = 0 } = timeConfig;
 
@@ -99,11 +99,34 @@ const setTime = (timeConfig: TimeConfiguration) => {
 
 const runningState = reactive<PomodoroRunningState>({
   periodType: PeriodType.Pomodoro,
-  isClockRunning: false,
-  timer: setTimeout(() => {}, 0)
+  clockState: ClockState.STOPPED,
+  timer: setTimeout(() => { }, 0)
 });
 
-const tick = (period: TimeConfiguration, timer: NodeJS.Timer) => {
+const nextPeriod = () => {
+  if (runningState.periodType === PeriodType.Pomodoro) {
+    runningState.periodType = PeriodType.Rest
+  } else {
+    runningState.periodType = PeriodType.Pomodoro
+  }
+
+  runningState.clockState = ClockState.STOPPED;
+
+  const runningConfig = JSON.parse(JSON.stringify(pomodoroConfig));
+  period =
+    runningState.periodType === PeriodType.Pomodoro
+      ? runningConfig.pomodoroPeriord
+      : runningConfig.restPeriord;
+
+  if (runningState.timer) {
+    clearTimeout(runningState.timer)
+  }
+  setTimeout(() => {
+    setTime(period)
+  }, 1000)
+}
+
+const countDown = (period: TimeConfiguration) => {
   if (period.seconds === 0) {
     if (period.minutes === 0) {
       if (period.hours === 0) {
@@ -111,7 +134,9 @@ const tick = (period: TimeConfiguration, timer: NodeJS.Timer) => {
         if (permissionGranted) {
           sendNotification('计时结束');
         }
-        return;
+
+        nextPeriod();
+        return false;
       }
 
       period.hours--;
@@ -125,17 +150,31 @@ const tick = (period: TimeConfiguration, timer: NodeJS.Timer) => {
     period.seconds--;
   }
 
-  setTime(period)
-  
-  timer = setTimeout(() => {
-    tick(period, timer)
-  }, 1000)
+  return true;
 }
 
-const run = () => {
-  const runningConfig = Object.assign({}, pomodoroConfig);
+const tick = (period: TimeConfiguration, timer: NodeJS.Timer) => {
+  if (runningState.clockState !== ClockState.RUNNING) {
+    if (timer) {
+      clearTimeout(timer);
+    }
+    return;
+  }
+  const timeLeft = countDown(period);
 
-  const period =
+  setTime(period);
+
+  if (timeLeft) {
+    timer = setTimeout(() => {
+      tick(period, timer)
+    }, 1000)
+  }
+}
+
+const handleRunPomodoroClock = () => {
+  const runningConfig = JSON.parse(JSON.stringify(pomodoroConfig));
+
+  period =
     runningState.periodType === PeriodType.Pomodoro
       ? runningConfig.pomodoroPeriord
       : runningConfig.restPeriord;
@@ -143,20 +182,44 @@ const run = () => {
   runningState.timer = setTimeout(() => {
     tick(period, runningState.timer)
   }, 1000);
+
+  runningState.clockState = ClockState.RUNNING
 };
 
-const stop = () => {
+const handlePausePomodoroClock = () => {
   if (runningState.timer) {
-    clearInterval(runningState.timer)
+    clearTimeout(runningState.timer)
+  }
+
+  runningState.clockState = ClockState.PAUSED
+}
+
+const handleRestorePomodoroClock = () => {
+  runningState.clockState = ClockState.RUNNING;
+
+  if (period) {
+    runningState.timer = setTimeout(() => {
+      tick(period, runningState.timer)
+    }, 1000);
   }
 }
 
-const handleRunPomodoroClock = () => {
-  run()
+const reset = () => {
+  Object.assign(runningState, {
+    periodType: PeriodType.Pomodoro,
+    clockState: ClockState.STOPPED,
+    timer: setTimeout(() => { }, 0)
+  })
+
+  setTime(pomodoroConfig.pomodoroPeriord);
 }
 
 const handleStopPomodoroClock = () => {
-  stop()
+  if (runningState.timer) {
+    clearTimeout(runningState.timer)
+  }
+
+  reset();
 }
 </script>
 
@@ -173,6 +236,7 @@ $bg: #f8c985;
 
   .pomodoro-header {
     height: 32px;
+    position: relative;
   }
 
   .pomodoro-body {
@@ -184,8 +248,12 @@ $bg: #f8c985;
   }
 
   .pomodoro-setting-icon {
-    font-size: 32px;
+    font-size: 24px;
     cursor: pointer;
+    position: absolute;
+    right: 10px;
+    top: 4px;
+    color: $orange;
   }
 
   .clock-container {
@@ -318,5 +386,21 @@ $bg: #f8c985;
       }
     }
   }
-}
-</style>
+
+  .pomodoro-menubar {
+    .operation-buttons {
+      margin: 6px;
+      font-size: 36px;
+      cursor: pointer;
+      vertical-align: middle;
+
+      &.primary {
+        color: $orange;
+      }
+
+      &.default {
+        color: $green;
+      }
+    }
+  }
+}</style>
