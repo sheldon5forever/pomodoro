@@ -2,8 +2,16 @@
   <div class="pomodoro-container">
     <div class="pomodoro-header">
       <setting-filled class="pomodoro-setting-icon" @click="handleOpenConfigDrawer" />
-      <a-drawer title="番茄钟配置" placement="right" :closable="false" :visible="configDrawerVisible"
-        @close="handleCloseConfigDrawer">
+      <a-drawer
+        title="番茄钟配置"
+        placement="top"
+        height="200"
+        headerStyle="background-color: #fae9be; border-bottom-color: #F68657;"
+        :drawerStyle="drawerStyle"
+        :closable="false"
+        :visible="configDrawerVisible"
+        @close="handleCloseConfigDrawer"
+      >
         <Configuration @ok="handleCloseConfigDrawer" />
       </a-drawer>
     </div>
@@ -17,14 +25,14 @@
           <div ref="secondRef" class="second"></div>
         </div>
       </div>
+    </div>
+    <div class="pomodoro-footer">
       <div class="pomodoro-menubar">
-        <play-circle-filled v-if="runningState.clockState === ClockState.STOPPED" class="operation-buttons primary" @click="handleRunPomodoroClock"/>
+        <play-circle-filled v-if="runningState.clockState === ClockState.STOPPED" class="operation-buttons primary" @click="handleRunPomodoroClock" />
         <pause-circle-filled v-if="runningState.clockState === ClockState.RUNNING" class="operation-buttons default" @click="handlePausePomodoroClock" />
         <play-circle-filled v-if="runningState.clockState === ClockState.PAUSED" class="operation-buttons primary" @click="handleRestorePomodoroClock" />
         <span class="anticon operation-buttons primary"><StopSVG v-if="runningState.clockState !== ClockState.STOPPED" @click="handleStopPomodoroClock" /></span>
       </div>
-    </div>
-    <div class="pomodoro-footer">
     </div>
   </div>
 </template>
@@ -67,6 +75,9 @@ interface PomodoroRunningState {
 const configDrawerVisible: Ref<boolean> = ref<boolean>(false);
 const { pomodoroConfig } = useConfigurationStore();
 let period: TimeConfiguration
+const drawerStyle = {
+  backgroundColor: '#fae9be'
+}
 
 const handleCloseConfigDrawer = () => {
   configDrawerVisible.value = false
@@ -226,7 +237,7 @@ const handleStopPomodoroClock = () => {
 <style lang="scss" scoped>
 $orange: #F68657;
 $green: #70bd63;
-$bg: #f8c985;
+$bg: #fae9be;
 
 .pomodoro-container {
   display: flex;
@@ -235,16 +246,17 @@ $bg: #f8c985;
   height: 100%;
 
   .pomodoro-header {
-    height: 32px;
+    height: 48px;
     position: relative;
   }
 
   .pomodoro-body {
     flex: 1;
+    max-height: 300px;
   }
 
   .pomodoro-footer {
-    height: 32px;
+    height: 48px;
   }
 
   .pomodoro-setting-icon {
@@ -252,7 +264,7 @@ $bg: #f8c985;
     cursor: pointer;
     position: absolute;
     right: 10px;
-    top: 4px;
+    top: 12px;
     color: $orange;
   }
 
@@ -260,11 +272,12 @@ $bg: #f8c985;
     display: flex;
     justify-content: center;
     align-items: center;
+    height: 100%;
 
     .clock {
       background: $orange;
-      width: 50vmin;
-      height: 50vmin;
+      width: 60vmin;
+      height: 60vmin;
       border-radius: 50%;
       position: relative;
 
