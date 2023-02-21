@@ -42,20 +42,13 @@ import { onMounted, reactive, Ref, ref } from 'vue';
 import Configuration from './components/Configuration.vue';
 import { SettingFilled, PlayCircleFilled, PauseCircleFilled } from '@ant-design/icons-vue';
 import useConfigurationStore, { HOUR_UNIT, MINUTE_UNIT, PomodoroConfiguration, TimeConfiguration } from './store/config';
-import { isPermissionGranted, requestPermission, sendNotification } from '@tauri-apps/api/notification';
+import { sendNotification } from '@tauri-apps/api/notification';
+import useAppPermission from '@/store/permissions';
 
 import StopSVG from '@/assets/stop-recording-fill.svg';
 import NotificationIcon from '@/assets/alarm-clock-alarm-clock-that-sounds-loudly-morning-wake-up-from-bed_68708-935.png';
 
-let permissionGranted: boolean;
-
-isPermissionGranted().then(() => {
-  if (!permissionGranted) {
-    requestPermission().then((permission) => {
-      permissionGranted = permission === 'granted';
-    })
-  }
-});
+const { appPermission } = useAppPermission()
 
 enum PeriodType {
   Pomodoro,
@@ -148,7 +141,7 @@ const countDown = (period: TimeConfiguration) => {
     if (period.minutes === 0) {
       if (period.hours === 0) {
         // 倒计时结束
-        if (permissionGranted) {
+        if (appPermission.notification) {
           sendNotification({
             icon: NotificationIcon,
             body: runningState.periodType === PeriodType.Pomodoro ? '番茄钟时间结束，开始休息' : '休息结束',
