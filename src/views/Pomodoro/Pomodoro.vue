@@ -2,8 +2,16 @@
   <div class="pomodoro-container">
     <div class="pomodoro-header">
       <setting-filled class="pomodoro-setting-icon" @click="handleOpenConfigDrawer" />
-      <a-drawer title="番茄钟配置" placement="right" :closable="false" :visible="configDrawerVisible"
-        @close="handleCloseConfigDrawer">
+      <a-drawer
+        title="番茄钟配置"
+        placement="top"
+        height="200"
+        headerStyle="background-color: #fae9be; border-bottom-color: #F68657;"
+        :drawerStyle="drawerStyle"
+        :closable="false"
+        :visible="configDrawerVisible"
+        @close="handleCloseConfigDrawer"
+      >
         <Configuration @ok="handleCloseConfigDrawer" />
       </a-drawer>
     </div>
@@ -67,6 +75,9 @@ interface PomodoroRunningState {
 const configDrawerVisible: Ref<boolean> = ref<boolean>(false);
 const { pomodoroConfig } = useConfigurationStore();
 let period: TimeConfiguration
+const drawerStyle = {
+  backgroundColor: '#fae9be'
+}
 
 const handleCloseConfigDrawer = () => {
   configDrawerVisible.value = false
@@ -226,7 +237,7 @@ const handleStopPomodoroClock = () => {
 <style lang="scss" scoped>
 $orange: #F68657;
 $green: #70bd63;
-$bg: #f8c985;
+$bg: #fae9be;
 
 .pomodoro-container {
   display: flex;
