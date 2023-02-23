@@ -5,7 +5,7 @@
       <a-drawer
         title="番茄钟配置"
         placement="top"
-        height="200"
+        height="256"
         headerStyle="background-color: #fae9be; border-bottom-color: #F68657;"
         :drawerStyle="drawerStyle"
         :closable="false"
@@ -18,6 +18,11 @@
     <div class="pomodoro-body">
       <div class="clock-container">
         <div class="clock">
+          <div class="leaf"></div>
+          <div class="leaf1"></div>
+          <div class="leaf2"></div>
+          <div class="leaf3"></div>
+          <div class="leaf4"></div>
           <div class="middle"></div>
           <div class="middle1"></div>
           <div ref="hourRef" class="hour"></div>
@@ -41,19 +46,14 @@
 import { onMounted, reactive, Ref, ref } from 'vue';
 import Configuration from './components/Configuration.vue';
 import { SettingFilled, PlayCircleFilled, PauseCircleFilled } from '@ant-design/icons-vue';
-import useConfigurationStore, { HOUR_UNIT, MINUTE_UNIT, TimeConfiguration } from './store/config';
-import { isPermissionGranted, requestPermission, sendNotification } from '@tauri-apps/api/notification';
+import useConfigurationStore, { HOUR_UNIT, MINUTE_UNIT, PomodoroConfiguration, TimeConfiguration } from './store/config';
+import { sendNotification } from '@tauri-apps/api/notification';
+import useAppPermission from '@/store/permissions';
+
 import StopSVG from '@/assets/stop-recording-fill.svg';
+import NotificationIcon from '@/assets/alarm-clock-alarm-clock-that-sounds-loudly-morning-wake-up-from-bed_68708-935.png';
 
-let permissionGranted: boolean;
-
-isPermissionGranted().then(() => {
-  if (!permissionGranted) {
-    requestPermission().then((permission) => {
-      permissionGranted = permission === 'granted';
-    })
-  }
-});
+const { appPermission } = useAppPermission()
 
 enum PeriodType {
   Pomodoro,
@@ -73,7 +73,7 @@ interface PomodoroRunningState {
 }
 
 const configDrawerVisible: Ref<boolean> = ref<boolean>(false);
-const { pomodoroConfig } = useConfigurationStore();
+const { getConfig } = useConfigurationStore();
 let period: TimeConfiguration
 const drawerStyle = {
   backgroundColor: '#fae9be'
@@ -87,8 +87,12 @@ const handleOpenConfigDrawer = () => {
   configDrawerVisible.value = true
 }
 
+let pomodoroConfig: PomodoroConfiguration;
 onMounted(() => {
-  setTime(pomodoroConfig.pomodoroPeriord);
+  getConfig().then((config: PomodoroConfiguration) => {
+    pomodoroConfig = config;
+    setTime(pomodoroConfig.pomodoroPeriord);
+  })
 })
 
 const hourRef = ref<HTMLElement>()
@@ -142,8 +146,12 @@ const countDown = (period: TimeConfiguration) => {
     if (period.minutes === 0) {
       if (period.hours === 0) {
         // 倒计时结束
-        if (permissionGranted) {
-          sendNotification('计时结束');
+        if (appPermission.notification) {
+          sendNotification({
+            icon: NotificationIcon,
+            body: runningState.periodType === PeriodType.Pomodoro ? '番茄钟时间结束，开始休息' : '休息结束',
+            title: '时间到'
+          });
         }
 
         nextPeriod();
@@ -281,33 +289,72 @@ $bg: #fae9be;
       border-radius: 50%;
       position: relative;
 
-      &:before {
-        content: '';
+      .leaf {
         position: absolute;
         margin: auto;
-        width: 3%;
-        height: 12%;
+        width: 4%;
+        height: 20%;
         background: $green;
         left: 0;
         right: 0;
-        top: -10%;
-        z-index: -1;
+        top: -14%;
+        z-index: 0;
         transform: rotate(10deg);
       }
 
-      &:after {
-        content: '';
+      .leaf1 {
         position: absolute;
         margin: auto;
-        width: 8%;
-        height: 16%;
+        width: 10%;
+        height: 26%;
         background: $green;
         left: 0;
-        right: 15%;
-        top: -10%;
-        z-index: -1;
-        transform: rotate(-40deg);
-        border-radius: 100% 30% 50% 0;
+        right: 18%;
+        top: -14%;
+        z-index: 0;
+        transform: rotate(-80deg);
+        border-radius: 100% 100% 50% 0;
+      }
+      .leaf2 {
+        position: absolute;
+        margin: auto;
+        width: 10%;
+        height: 26%;
+        background: $green;
+        left: 0;
+        right: 22%;
+        top: -4%;
+        z-index: 0;
+        transform: rotate(-120deg);
+        border-radius: 100% 100% 50% 0;
+      }
+
+      .leaf3 {
+        position: absolute;
+        margin: auto;
+        width: 10%;
+        height: 26%;
+        background: $green;
+        left: 0;
+        right: -20%;
+        top: -4%;
+        z-index: 0;
+        transform: rotate(120deg);
+        border-radius: 100% 100% 50% 0;
+      }
+
+      .leaf4 {
+        position: absolute;
+        margin: auto;
+        width: 10%;
+        height: 26%;
+        background: $green;
+        left: 0;
+        right: -20%;
+        top: -14%;
+        z-index: 0;
+        transform: rotate(80deg);
+        border-radius: 100% 100% 50% 0;
       }
 
       .middle1 {
@@ -321,7 +368,7 @@ $bg: #fae9be;
         height: 5%;
         background: darken($orange, 8);
         border-radius: 50%;
-        z-index: 1;
+        z-index: 2;
       }
 
       .middle {
@@ -335,7 +382,7 @@ $bg: #fae9be;
         height: 5%;
         background: darken($orange, 10);
         border-radius: 50%;
-
+        z-index: 1;
 
         &:before {
           content: '';
