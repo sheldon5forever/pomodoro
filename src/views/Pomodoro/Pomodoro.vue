@@ -292,12 +292,12 @@ $bg: #fae9be;
       .leaf {
         position: absolute;
         margin: auto;
-        width: 3%;
-        height: 12%;
+        width: 4%;
+        height: 20%;
         background: $green;
         left: 0;
         right: 0;
-        top: -10%;
+        top: -14%;
         z-index: 0;
         transform: rotate(10deg);
       }
@@ -305,25 +305,25 @@ $bg: #fae9be;
       .leaf1 {
         position: absolute;
         margin: auto;
-        width: 8%;
-        height: 16%;
+        width: 10%;
+        height: 26%;
         background: $green;
         left: 0;
-        right: 14%;
-        top: -10%;
+        right: 18%;
+        top: -14%;
         z-index: 0;
-        transform: rotate(-40deg);
+        transform: rotate(-80deg);
         border-radius: 100% 100% 50% 0;
       }
       .leaf2 {
         position: absolute;
         margin: auto;
-        width: 8%;
-        height: 16%;
+        width: 10%;
+        height: 26%;
         background: $green;
         left: 0;
-        right: 15%;
-        top: -1%;
+        right: 22%;
+        top: -4%;
         z-index: 0;
         transform: rotate(-120deg);
         border-radius: 100% 100% 50% 0;
@@ -332,12 +332,12 @@ $bg: #fae9be;
       .leaf3 {
         position: absolute;
         margin: auto;
-        width: 8%;
-        height: 16%;
+        width: 10%;
+        height: 26%;
         background: $green;
         left: 0;
-        right: -10%;
-        top: -1%;
+        right: -20%;
+        top: -4%;
         z-index: 0;
         transform: rotate(120deg);
         border-radius: 100% 100% 50% 0;
@@ -346,14 +346,14 @@ $bg: #fae9be;
       .leaf4 {
         position: absolute;
         margin: auto;
-        width: 8%;
-        height: 16%;
+        width: 10%;
+        height: 26%;
         background: $green;
         left: 0;
-        right: -13%;
-        top: -9%;
+        right: -20%;
+        top: -14%;
         z-index: 0;
-        transform: rotate(40deg);
+        transform: rotate(80deg);
         border-radius: 100% 100% 50% 0;
       }
 
