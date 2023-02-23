@@ -18,6 +18,11 @@
     <div class="pomodoro-body">
       <div class="clock-container">
         <div class="clock">
+          <div class="leaf"></div>
+          <div class="leaf1"></div>
+          <div class="leaf2"></div>
+          <div class="leaf3"></div>
+          <div class="leaf4"></div>
           <div class="middle"></div>
           <div class="middle1"></div>
           <div ref="hourRef" class="hour"></div>
@@ -284,8 +289,7 @@ $bg: #fae9be;
       border-radius: 50%;
       position: relative;
 
-      &:before {
-        content: '';
+      .leaf {
         position: absolute;
         margin: auto;
         width: 3%;
@@ -294,12 +298,24 @@ $bg: #fae9be;
         left: 0;
         right: 0;
         top: -10%;
-        z-index: -1;
+        z-index: 0;
         transform: rotate(10deg);
       }
 
-      &:after {
-        content: '';
+      .leaf1 {
+        position: absolute;
+        margin: auto;
+        width: 8%;
+        height: 16%;
+        background: $green;
+        left: 0;
+        right: 14%;
+        top: -10%;
+        z-index: 0;
+        transform: rotate(-40deg);
+        border-radius: 100% 100% 50% 0;
+      }
+      .leaf2 {
         position: absolute;
         margin: auto;
         width: 8%;
@@ -307,10 +323,38 @@ $bg: #fae9be;
         background: $green;
         left: 0;
         right: 15%;
-        top: -10%;
-        z-index: -1;
-        transform: rotate(-40deg);
-        border-radius: 100% 30% 50% 0;
+        top: -1%;
+        z-index: 0;
+        transform: rotate(-120deg);
+        border-radius: 100% 100% 50% 0;
+      }
+
+      .leaf3 {
+        position: absolute;
+        margin: auto;
+        width: 8%;
+        height: 16%;
+        background: $green;
+        left: 0;
+        right: -10%;
+        top: -1%;
+        z-index: 0;
+        transform: rotate(120deg);
+        border-radius: 100% 100% 50% 0;
+      }
+
+      .leaf4 {
+        position: absolute;
+        margin: auto;
+        width: 8%;
+        height: 16%;
+        background: $green;
+        left: 0;
+        right: -13%;
+        top: -9%;
+        z-index: 0;
+        transform: rotate(40deg);
+        border-radius: 100% 100% 50% 0;
       }
 
       .middle1 {
@@ -324,7 +368,7 @@ $bg: #fae9be;
         height: 5%;
         background: darken($orange, 8);
         border-radius: 50%;
-        z-index: 1;
+        z-index: 2;
       }
 
       .middle {
@@ -338,7 +382,7 @@ $bg: #fae9be;
         height: 5%;
         background: darken($orange, 10);
         border-radius: 50%;
-
+        z-index: 1;
 
         &:before {
           content: '';
